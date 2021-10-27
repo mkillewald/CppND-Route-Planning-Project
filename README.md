@@ -1,6 +1,6 @@
 # Route Planning Project
 
-This is my accepted submission for project 1 of Udacity's C++ nanodegree program 
+This is my submission for project 1 of Udacity's C++ nanodegree program 
 
 <img src="map.png" width="600" height="450" />
 
