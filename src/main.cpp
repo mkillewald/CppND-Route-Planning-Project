@@ -10,6 +10,9 @@
 
 using namespace std::experimental;
 
+#define MIN_INPUT 0.0
+#define MAX_INPUT 100.0
+
 static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
 {   
     std::ifstream is{path, std::ios::binary | std::ios::ate};
@@ -25,6 +28,18 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
     if( contents.empty() )
         return std::nullopt;
     return std::move(contents);
+}
+
+// based on example from https://isocpp.org/wiki/faq/input-output#istream-and-ignore
+float user_input_float(std::string prompt, const float min_value, const float max_value) {
+    float value;
+    while ((std::cout << prompt << " (" << min_value << " to " << max_value << "): ")
+            && (!(std::cin >> value) || value < min_value || value > max_value)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid input, please try again. ";
+    }
+    return value;
 }
 
 int main(int argc, const char **argv)
@@ -52,15 +67,18 @@ int main(int argc, const char **argv)
             osm_data = std::move(*data);
     }
     
-    // TODO 1: Declare floats `start_x`, `start_y`, `end_x`, and `end_y` and get
-    // user input for these values using std::cin. Pass the user input to the
-    // RoutePlanner object below in place of 10, 10, 90, 90.
+    float start_x, start_y, end_x, end_y;
+
+    start_x = user_input_float("Enter start x coordinate", MIN_INPUT, MAX_INPUT);
+    start_y = user_input_float("Enter start y coordinate", MIN_INPUT, MAX_INPUT);
+    end_x = user_input_float("Enter end x coordinate", MIN_INPUT, MAX_INPUT);
+    end_y = user_input_float("Enter end y coordinate", MIN_INPUT, MAX_INPUT);
 
     // Build Model.
     RouteModel model{osm_data};
 
     // Create RoutePlanner object and perform A* search.
-    RoutePlanner route_planner{model, 10, 10, 90, 90};
+    RoutePlanner route_planner{model, start_x, start_y, end_x, end_y};
     route_planner.AStarSearch();
 
     std::cout << "Distance: " << route_planner.GetDistance() << " meters. \n";
